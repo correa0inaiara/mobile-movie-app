@@ -15,7 +15,7 @@ const MovieCard = ({ id, poster_path, title, vote_average, release_date }: Movie
                             : 'https://placehold.co/600x400/1a1a1a/ffffff.png'
                     }}
                     className='w-full h-52 rounded-lg'
-                    style={{ width: '100%', height: '200'}}
+                    style={{ width: '100%', height: 200}}
                     contentFit='contain'
                 />
 
