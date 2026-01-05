@@ -1,5 +1,5 @@
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Image } from 'expo-image'
 import { images } from '@/constants/images'
 import MovieCard from '../components/MovieCard'
@@ -7,6 +7,7 @@ import useFetch from '../services/useFetch'
 import { fetchMovies } from '../services/api'
 import { icons } from '@/constants/icons'
 import SearchBar from '../components/SearchBar'
+import {updateSearchCount} from '../services/appwrite'
 
 const search = () => {
 
@@ -15,10 +16,39 @@ const search = () => {
    const {
     data: movies,
     loading: moviesLoading,
-    error: moviesError
+    error: moviesError,
+    refetch: loadMovies,
+    reset,
   } = useFetch(() => fetchMovies({
     query: searchQuery
   }), false)
+
+  useEffect(() => {
+    // const func = async () => {
+    //    console.log('func')
+      // if (movies?.results.length > 0 && movies?.results[0]) {
+        // updateSearchCount(searchQuery, movies?.results[0])
+        // console.log('movies', movies)
+    //   }
+    // }
+    // func()
+
+    const timeoutId = setTimeout(async () => {
+      if (searchQuery.trim()) {
+        await loadMovies()
+
+      } else {
+        reset()
+      }
+    }, 500)
+
+    return () => clearTimeout(timeoutId)
+  }, [searchQuery])
+
+  useEffect(() => {
+    if (movies?.results.length > 0 && movies?.results[0])
+      updateSearchCount(searchQuery, movies?.results[0])
+  }, [movies])
 
   return (
     <View className='flex-1 bg-primary'>
@@ -78,6 +108,15 @@ const search = () => {
               </Text>
             )}
           </>
+        }
+        ListEmptyComponent={
+          !moviesLoading && !moviesError? (
+            <View className='mt-10 px-5'>
+              <Text className='text-center text-gray-500'>
+                {searchQuery.trim() ? 'No movies found' : 'Search for a movie'}
+              </Text>
+            </View>
+          ) : null
         }
       />
     </View>
